@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Services\Factories;
+namespace App\Services;
 
 use App\Entity\Shortener;
-use App\Entity\User;
 use App\Repository\ShortenerRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 
-class ShortenerFactory
+class ShortenerService
 {
-
     protected ShortenerRepository $repository;
+
     public function __construct(
         protected EntityManagerInterface $em
     )
@@ -19,11 +17,8 @@ class ShortenerFactory
         $this->repository = $this->em->getRepository(Shortener::class);
     }
 
-    public function save(string $url, string $code): Shortener
+    public function getAllByUser():array
     {
-        $entity = new Shortener($url, $code);
-        $this->em->persist($entity);
-        $this->em->flush();
-        return $entity;
+        return $this->repository->findAll();
     }
 }

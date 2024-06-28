@@ -6,6 +6,7 @@ use App\MyShortener\Exceptions\DataNotFoundException;
 use App\MyShortener\Interfaces\IUrlEncoder;
 use App\MyShortener\Interfaces\IUrlRepository;
 use App\MyShortener\Interfaces\IUrlValidator;
+use App\Services\ShortenerDoctrineRepository;
 
 class UrlEncoder implements IUrlEncoder
 {

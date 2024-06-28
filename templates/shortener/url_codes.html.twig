@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Urls list{{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        <h1>Urls list</h1>
+        <div class="newUrl">
+            <form action="{{ path('shortener_encode') }}" method="post">
+                <label>
+                    Додати скорочення
+                    <input type="text" name="url" placeholder="some url" required>
+                </label>
+                <button type="submit">Додати</button>
+            </form>
+        </div>
+        {% for shortener in url_codes %}
+            <div class="row">
+                <div class="col">
+                    <a href="{{ path('shortener_code_stats', {'code':  shortener.code}) }}">{{ shortener.code }}</a>:
+                    <a href="{{ shortener.url }}">{{ shortener.url }}</a>  - Переходів: {{ shortener.count }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block page_name %}Urls statistics{% endblock %}

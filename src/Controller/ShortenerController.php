@@ -2,28 +2,46 @@
 
 namespace App\Controller;
 
-use App\MyShortener\Interfaces\IUrlDecoder;
+use App\Entity\Shortener;
 use App\MyShortener\Interfaces\IUrlEncoder;
+use App\Services\IncrementService;
+use App\Services\ShortenerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/shortener', name: 'shortener.')]
+#[Route('/shortener', name: 'shortener_')]
 class ShortenerController extends AbstractController
 {
-    #[Route('/encode/{url}', name: 'encode', requirements: ['url' => '.*'])]
-    public function encode(string $url, IUrlEncoder $encoder): Response
+    #[Route('/encode', name: 'encode', methods: ['POST'])]
+    public function encode(Request $request, IUrlEncoder $encoder): Response
     {
+        $url = $request->get('url');
         $code = $encoder->encode($url);
-
-        return new Response($code);
+        return $this->redirectToRoute('shortener_code_stats', ['code' => $code]);
     }
 
-    #[Route('/decode/{code}', name: 'decode')]
-    public function decode(string $code, IUrlDecoder $decoder): Response
+    #[Route('/{code}/stats', name: 'code_stats', requirements: ['code'=>'\w{6,8}'])]
+    public function decode(Shortener $shortener): Response
     {
-        $url = $decoder->decode($code);
+        return $this->render('shortener/url_code.html.twig', [
+            'shortener' =>  $shortener,
+        ]);
+    }
 
-        return new Response($url);
+    #[Route('/statistics', name: 'codes_stats')]
+    public function allStats(ShortenerService $service): Response
+    {
+        return $this->render('shortener/url_codes.html.twig', [
+            'url_codes' =>  $service->getAllByUser(),
+        ]);
+    }
+
+    #[Route('/{code}', name: 'redirect', requirements: ['code'=>'\w{6,8}'])]
+    public function redirectUrl(Shortener $shortener, IncrementService $incrementorService): Response
+    {
+        $incrementorService->incrementAndSave($shortener);
+        return $this->redirect($shortener->getUrl());
     }
 }
